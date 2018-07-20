@@ -1,0 +1,160 @@
+TODO:
+copy the docker dir from existing private directory.
+
+Set up EFS provisioner
+
+change the provisioner name in manifest.yaml from example.com to kubernetes.io (test this)
+
+
+Configure Jenkins the way it should be and make an images:
+https://kumorilabs.com/blog/k8s-6-integrating-jenkins-kubernetes/
+
+
+Create a S3 endpoint.
+
+Cron job tar's and copies the jenkins directory.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+kops get cluster
+kubectl cluster-info
+kops validate cluster
+kubectl --namespace kube-system get pods # provides a list of the components running in the cluster
+kubectl -n kube-system get po
+
+
+
+# Update the cluster
+https://goo.gl/f6XAks
+
+kops edit --help
+
+# To add a worker node to the cluster, this is not done with cluster edit.  You do it by modifying autoscaling groups or instance groups (ig)
+
+# Modify the cluster with the $NAME created, want to modify the instance groups related to nodes.
+# With the following command you will get to edit the part of the state configuration file stored in the S3 bucket related with worker nodes.
+kops edit ig --name $NAME nodes
+
+# Change `spec.maxSize` and `spec.minSize` to `2`, save, and exit.
+
+# Now that you have made the change you need to apply the change
+
+# Do the following first to see / preview the changes:
+# in this particular case it will show that the Min and Max sizes will be increased from 1 to 2.
+kops update cluster --name $NAME
+
+# To apply the change append --yes
+kops update cluster --name $NAME --yes
+
+# Validate changes with both kops and kubectl - I like kops more :)
+kops validate cluster
+
+
+
+# Upgrade from v1.8.4 to
+# goo.gl/87mMge
+
+# Manualy Upgrading the Cluster - The following will open the cluster configuration in your default editor
+kops edit cluster $NAME
+
+Search for the version
+On my file it's line 41
+change
+41   kubernetesVersion: v1.8.4
+to
+41   kubernetesVersion: v1.8.5
+
+# preview the Cluster update
+kops update cluster $NAME
+
+# This does say that a rolling update will be required because this has to shutdown parts of the cluster, which is destructive
+kops update cluster $NAME --yes
+
+# Preview the rolling update
+kops rolling-update cluster $NAME
+
+# This will shut down one node at a time and replace it with new node that has the updated Kubernetes version
+# This is done so that the applications would experience no downtime
+kops rolling-update cluster $NAME --yes
+
+# Validating the Upgrade kubectl will reveal that the nodes have different IP addresses and the version has been upgraded.
+kubectl get nodes
+kops validate cluster
+
+
+
+# The steps above let you upgrade to specific K8s version.
+# Instead of manually editing the configuration file (above) and running kops update you can
+# To skip editing the file manually and upgrade the cluster automatically to the latest stable version using kops upgrade
+The following command is equivalent to editing the configuration file.  It will edit the file specifying the latest version
+kops upgrade cluster $NAME --yes
+
+
+# Now that the file is edited to the latest version run the update
+kops update cluster $NAME --yes
+
+# once again you get the information that the changes require restart so you need to execut the rolling update command
+kops rolling-update cluster $NAME --yes
+
+kubectl get nodes
+
+
+
+#Accessing the cluster - this shows that the LB is only accessing the masters no workers. And it is only accessible via port 443
+aws elb describe-load-balancers
+
+# you can see that the cluster server matches DNS name from the previous command
+kubectl config view
+
+
+# Creating ingress controller for a means to access the worker nodes and the applications deployed
+# for this will need an ingress controller to route requests to worker nodes to their destination services
+# and need a second load balancer as well to forward requests to one of the healthy worker nodes
+# Kops has a solution that will combine the two together.
+
+kubectl create \
+-f https://raw.githubusercontent.com/kubernetes/kops/master/addons/ingress-nginx/v1.6.0.yaml
+
+#Explore the ingress controller.  This creates nginx and load balancer and the ports open in the ingress will be open in the ELB
+kubectl --namespace kube-ingress get all
+
+
+#Explore the ELBs - now there will be an additional ELB for worker nodes listening on port 80 and 443 but forwarding to created ports for the services
+aws elb describe-load-balancers
+
+# Retrieve DNS for the Worker nodes ELB
+# Get the load balancer descriptions that do NOT contain the phrase / string "api-devops23" which should be the worker load balancer as there should only be 2 load balancers
+# After filtering results so that only the second load balancer is retrieved.  Gonna get the DNS name for that load balancer
+CLUSTER_DNS=$(aws elb describe-load-balancers | jq -r ".LoadBalancerDescriptions[] | select(.DNSName | contains (\"api-devops23\") | not).DNSName")
+
+
+#Test ingress controller
+kubectl create -f https://raw.githubusercontent.com/vfarcic/k8s-specs/master/aws/go-demo-2.yml
+kubectl rollout status deployment go-demo-2-api
+ourl -i "http://$CLUSTER_DNS/demo/hello"
+
+
+# Install Jenkins
+kubectl create ns jenkins
+kubectl create -f jenkins-deployment.yaml --namespace=jenkins
+kubectl  describe deployments --namespace=jenkins
+kubectl create -f jenkins-service.yaml --namespace=jenkins
+jenkins_name=$(kubectl get pods --namespace=jenkins |awk 'NR > 1 {print $1}')
+kubectl logs $jenkins_name --namespace=jenkins

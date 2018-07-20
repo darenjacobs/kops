@@ -1,0 +1,70 @@
+FROM openjdk:8-jdk
+
+MAINTAINER Daren Jacobs <daren.jacobs@fhlbny.com>
+
+ENV JENKINS_SWARM_VERSION 3.12
+ENV HOME /home/jenkins-slave
+ENV TZ="America/New_York"
+ARG user=jenkins-slave
+
+# install netstat to allow connection health check with
+# netstat -tan | grep ESTABLISHED
+RUN \
+    apt-get update && \
+    apt-get install -y \
+        build-essential \
+        bzip2 \
+        ca-certificates \
+        git \
+        jq \
+        libssl-dev \
+        maven \
+        net-tools \
+        python-dev \
+        python-setuptools \
+        tzdata \
+        vim && \
+    easy_install pip && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the timezone
+RUN \
+    cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
+    echo "${TZ}" > /etc/timezone
+
+# Install Packer
+ENV PACKER_VERSION=1.2.4
+ADD https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip /tmp/
+RUN \
+    cd /tmp && \
+    unzip packer_${PACKER_VERSION}_linux_amd64.zip -d /bin && \
+    rm /tmp/packer_${PACKER_VERSION}_linux_amd64.zip
+
+# Install Ant
+ENV ANT_VERSION 1.10.4
+ENV ANT_HOME /opt/ant
+RUN \
+    mkdir -p ${ANT_HOME} && \
+    cd /tmp && wget -q https://www.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz && \
+    tar zxvf /tmp/apache-ant-${ANT_VERSION}-bin.tar.gz && \
+    mv /tmp/apache-ant-${ANT_VERSION} /opt/ant && \
+    rm /tmp/apache-ant-${ANT_VERSION}-bin.tar.gz
+ENV PATH ${PATH}:/opt/ant/bin
+
+RUN useradd -c "Jenkins Slave user" -d $HOME -m ${user}
+RUN curl --create-dirs -sSLo /usr/share/jenkins/swarm-client-$JENKINS_SWARM_VERSION.jar https://repo.jenkins-ci.org/releases/org/jenkins-ci/plugins/swarm-client/$JENKINS_SWARM_VERSION/swarm-client-$JENKINS_SWARM_VERSION.jar \
+  && chmod 755 /usr/share/jenkins
+
+RUN \
+    chown -R ${user} /usr/local/bin && \
+    chown -R ${user} /usr/local/lib
+
+COPY jenkins-slave.sh /usr/local/bin/jenkins-slave.sh
+
+USER ${user}
+RUN pip install awscli setuptools --upgrade --user && \
+    pip install ansible apache-libcloud docker-py jinja2 pyaml
+ENV PATH ${PATH}:/home/jenkins-slave/.local/bin
+
+VOLUME /home/jenkins-slave
+ENTRYPOINT ["/usr/local/bin/jenkins-slave.sh"]

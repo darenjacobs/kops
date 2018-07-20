@@ -1,0 +1,24 @@
+active-directory
+analysis-collector
+ansible
+artifactory
+bitbucket
+# blueocean
+checkstyle
+command-launcher
+credentials
+findbugs
+git
+git-client
+github
+github-oauth
+# jobs-dsl
+junit
+kubernetes
+selenium
+sonar
+subversion
+swarm
+timestamper
+versionnumber
+workflow-aggregator

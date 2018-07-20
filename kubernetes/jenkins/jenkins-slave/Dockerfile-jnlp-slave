@@ -1,0 +1,25 @@
+FROM openjdk:8-jdk
+MAINTAINER Daren Jacobs <daren.jacobs@fhlbny.com>
+
+ARG user=jenkins
+ARG group=jenkins
+ARG uid=10000
+ARG gid=10000
+
+ENV HOME /home/${user}
+ENV VERSION 3.20
+RUN groupadd -g ${gid} ${group}
+RUN useradd -c "Jenkins user" -d $HOME -u ${uid} -g ${gid} -m ${user}
+Label Description="Base image jnlp-slave, providing slave.jar agent"
+
+RUN curl --create-dirs -sSLo /usr/share/jenkins/slave.jar https://repo.jenkins-ci.org/public/org/jenkins-ci/main/remoting/${VERSION}/remoting-${VERSION}.jar \
+  && chmod 755 /usr/share/jenkins \
+  && chmod 644 /usr/share/jenkins/slave.jar
+
+USER ${user}
+VOLUME /home/${user}
+WORKDIR /home/${user}
+
+COPY jenkins-slave /usr/local/bin/jenkins-slave
+
+ENTRYPOINT ["jenkins-slave"]

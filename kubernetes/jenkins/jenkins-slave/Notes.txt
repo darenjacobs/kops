@@ -1,0 +1,27 @@
+Dockerfile-jnlp-slave -> darenjacobs/jnlp-slave
+
+
+Alpine:
+Dockerfile-worx-alpine -> darenjacobs/custom-slave:alpine
+
+Docker-slave - https://hub.docker.com/r/jenkins/slave/~/dockerfile/
+             - https://hub.docker.com/r/ceroic/jnlp-slave/~/dockerfile/
+
+jenkins-slave - https://raw.githubusercontent.com/jenkinsci/docker-jnlp-slave/master/jenkins-slave
+
+
+Packer - https://github.com/hashicorp/docker-hub-images/blob/master/packer/Dockerfile-light
+Ant - https://hub.docker.com/r/webratio/ant/~/dockerfile/
+Ansible - https://hub.docker.com/r/williamyeh/ansible/~/dockerfile/
+jq - https://github.com/do0g/docker-jq/blob/master/Dockerfile
+
+
+Docker-k8s-swarm:
+    - https://github.com/carlossg/jenkins-swarm-slave-docker
+    - https://hub.docker.com/r/csanchez/jenkins-swarm-slave/~/dockerfile/
+    Stand alone Jenkins slave Agent.
+    Using this because running a freestyle job using label for from k8s plugin to run my docker image: darenjacobs/custom:3.20.1, looks like its pulling the image but cannot     run ansible, packer, maven orany of the other applications I installed in the image.
+
+    - This is the source Dockerfile for ../jenkins-slave.yaml
+    - TODO: gotta find a out how to pass params to the job
+

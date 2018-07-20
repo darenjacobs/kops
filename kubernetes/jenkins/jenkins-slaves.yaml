@@ -1,0 +1,43 @@
+---
+  apiVersion: "extensions/v1beta1"
+  kind: "Deployment"
+  metadata:
+    name: "freestyle"
+    labels:
+      name: "freestyle"
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        name: "freestyle"
+        labels:
+          name: "freestyle"
+      spec:
+        containers:
+          - name: "freestyle"
+            image: "darenjacobs/jenkins-swarm-slave:3.12.1"
+            command:
+              - "/usr/local/bin/jenkins-slave.sh"
+              - "-master"
+              - "http://jenkins-leader-svc.default.svc.cluster.local"
+              - "-username"
+              - "jenkins"
+              - "-password"
+              - "jenkins"
+              - "-executors"
+              - "20"
+            volumeMounts:
+              - name: jenkins-home
+                mountPath: /home/jenkins-slave
+            livenessProbe:
+              exec:
+                command:
+                - sh
+                - -c
+                - "netstat -tan | grep ESTABLISHED"
+              initialDelaySeconds: 60
+              timeoutSeconds: 1
+        volumes:
+        - name: jenkins-home
+          persistentVolumeClaim:
+            claimName: efs
