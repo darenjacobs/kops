@@ -13,7 +13,7 @@ spec:
         fsGroup: 99
       containers:
         - name: jenkins-leader
-          image: darenjacobs/jenkins-image:1.2
+          image: darenjacobs/jenkins-image:1.3
           resources:
             requests:
               memory: "2048Mi"
