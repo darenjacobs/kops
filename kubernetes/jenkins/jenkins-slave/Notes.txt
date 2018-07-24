@@ -17,11 +17,10 @@ jq - https://github.com/do0g/docker-jq/blob/master/Dockerfile
 
 
 Docker-k8s-swarm:
-    - https://github.com/carlossg/jenkins-swarm-slave-docker
-    - https://hub.docker.com/r/csanchez/jenkins-swarm-slave/~/dockerfile/
-    Stand alone Jenkins slave Agent.
-    Using this because running a freestyle job using label for from k8s plugin to run my docker image: darenjacobs/custom:3.20.1, looks like its pulling the image but cannot     run ansible, packer, maven orany of the other applications I installed in the image.
-
-    - This is the source Dockerfile for ../jenkins-slave.yaml
-    - TODO: gotta find a out how to pass params to the job
+    - This gets pushed to https://hub.docker.com/r/darenjacobs/jenkins-swarm-slave
+    - Repo used by ../jenkins-slave.yaml
+    - Description: Using this because running a freestyle job using label for from k8s plugin to run my docker image: darenjacobs/custom:3.20.1, looks like its pulling the image but does not run ansible, packer, maven or any of the other applications I installed in the image.
+    - Borrowed from:
+      - https://github.com/carlossg/jenkins-swarm-slave-docker
+      - https://hub.docker.com/r/csanchez/jenkins-swarm-slave/~/dockerfile/
 
