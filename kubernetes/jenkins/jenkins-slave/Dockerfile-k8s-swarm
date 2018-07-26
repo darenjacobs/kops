@@ -62,7 +62,7 @@ RUN \
 COPY jenkins-slave.sh /usr/local/bin/jenkins-slave.sh
 
 USER ${user}
-RUN pip install awscli setuptools --upgrade --user && \
+RUN pip install awscli pywinrm setuptools --upgrade --user && \
     pip install ansible apache-libcloud docker-py jinja2 pyaml
 ENV PATH ${PATH}:/home/jenkins-slave/.local/bin
 

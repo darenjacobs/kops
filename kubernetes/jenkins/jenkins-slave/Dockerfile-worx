@@ -51,5 +51,5 @@ ENV PATH ${PATH}:/opt/ant/bin
 RUN chown ${user}:${user} -R /home/${user}
 
 USER ${user}
-RUN pip install --upgrade setuptools --user && \
+RUN pip install --upgrade pywinrm setuptools --user && \
     pip install ansible apache-libcloud docker-py jinja2 pyaml
