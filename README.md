@@ -93,7 +93,7 @@ kubectl logs deployment/cluster-autoscaler --namespace=kube-system
 
 
 # Install Jenkins
-kubectl -f ./kubernetes/jenkins
+kubectl apply -f ./kubernetes/jenkins
 
 see: https://kumorilabs.com/blog/k8s-6-integrating-jenkins-kubernetes/
 
