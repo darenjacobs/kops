@@ -24,7 +24,7 @@ RUN \
 
 # Install Packer
 RUN echo "==> Installing Packer <=="
-ENV PACKER_VERSION=1.2.4
+ENV PACKER_VERSION=1.2.5
 ADD https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip /tmp/
 RUN \
     unzip /tmp/packer_${PACKER_VERSION}_linux_amd64.zip -d /bin && \
