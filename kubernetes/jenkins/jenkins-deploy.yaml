@@ -21,6 +21,7 @@ spec:
           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
+              subPath: leader
           ports:
             - containerPort: 8080
             - containerPort: 50000

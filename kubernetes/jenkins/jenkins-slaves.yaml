@@ -29,6 +29,7 @@
             volumeMounts:
               - name: jenkins-home
                 mountPath: /home/jenkins-slave
+                subPath: worker
             livenessProbe:
               exec:
                 command:
