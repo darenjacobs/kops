@@ -91,11 +91,11 @@ aws iam attach-role-policy --role-name ${CLUSTER_FULL_NAME} --policy-arn arn:aws
 kubectl apply -f ./kubernetes/autoscaler/cluster-autoscaler-deploy.yaml
 kubectl logs deployment/cluster-autoscaler --namespace=kube-system
 
-
-# Install Jenkins
-kubectl apply -f ./kubernetes/jenkins
-
-see: https://kumorilabs.com/blog/k8s-6-integrating-jenkins-kubernetes/
+# Install / configure persistent volume
+edit kubernetes/manifest.yaml
+set the fs id
+set the region
+kubectl apply -f manifest.yaml
 
 Then set up Monitoring metrics:
 ```
