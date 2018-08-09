@@ -92,12 +92,14 @@ kubectl apply -f ./kubernetes/autoscaler/cluster-autoscaler-deploy.yaml
 kubectl logs deployment/cluster-autoscaler --namespace=kube-system
 
 # Install / configure persistent volume
+```
 edit kubernetes/manifest.yaml
 set the fs id
 set the region
 kubectl apply -f manifest.yaml
+```
 
-Then set up Monitoring metrics:
+# Set up Monitoring metrics:
 ```
 ./kubernetes/monitoring/prometheus.sh
 ```
