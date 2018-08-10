@@ -23,8 +23,8 @@ kubectl apply -f ./kubernetes/heapster
 ```
 
 - proxy: kubectl proxy --address 0.0.0.0 --accept-hosts '.*' --port 8080
-- Dashboard: /api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
-- Grafana: /api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1
+  - Dashboard: /api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+  - Grafana: /api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1
 
 - Prometheus proxy
   - kubectl port-forward -n monitoring prometheus-kube-prometheus-0 9090
