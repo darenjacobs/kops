@@ -11,7 +11,6 @@ To install the cluster run kops.sh
 kubectl apply -f ./kubernetes/rbac
 ```
 
-
 ## Install Dashboard and monitoring [here](https://github.com/aws-samples/aws-workshop-for-kubernetes/tree/master/02-path-working-with-clusters/201-cluster-monitoring)
 ```
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
@@ -27,6 +26,17 @@ kubectl apply -f ./kubernetes/heapster
 - Dashboard: /api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
 - Grafana: /api/v1/namespaces/kube-system/services/monitoring-grafana/proxy/?orgId=1
 
+- Prometheus proxy
+  - kubectl port-forward -n monitoring prometheus-kube-prometheus-0 9090
+  - open http://localhost:9090
+
+- Grafana proxy
+  - kubectl port-forward $(kubectl get  pods --selector=app=kube-prometheus-grafana -n  monitoring --output=jsonpath="{.items..metadata.name}") -n monitoring  3000
+   - open http://localhost:3000
+
+- Alertmanager proxy
+  - kubectl port-forward -n monitoring alertmanager-kube-prometheus-0 9093
+  - open http://localhost:9093
 
 ## Set env vars
 Make sure to set CLUSTER_FULL_NAME and CLUSTER_AWS_REGION
